@@ -38,32 +38,35 @@ def evaluation_model(liste_prop, alpha, instance, graphe_matrix):
 
 class Historique:
     def __init__(self):
-        self.temperature = []
+        # self.temperature = []
         self.proba = []
-        self.score = []
-        self.score_without_punition = []
+        # self.score = []
+        # self.score_without_punition = []
         self.modele_valide = []
         self.time_axis = []
         self.score_kept = []
+        self.i = 0  # on ne veut pas garder toutes les données, uniquement 1 sur 5
 
     def append(self, temperature, proba, score, score_without_punition, valide, time_axis, score_kept):
-        self.temperature.append(temperature)
-        self.proba.append(proba)
-        self.score.append(score)
-        self.score_without_punition.append(score_without_punition)
-        self.modele_valide.append(valide)
-        self.time_axis.append(time_axis)
-        self.score_kept.append(score_kept)
+        self.i += 1
+        if self.i % 5 == 0:
+            # self.temperature.append(temperature)
+            self.proba.append(proba)
+            # self.score.append(score)
+            # self.score_without_punition.append(score_without_punition)
+            self.modele_valide.append(valide)
+            self.time_axis.append(time_axis)
+            self.score_kept.append(score_kept)
 
     def save(self, path):
         """
         on enregistre les données au format json
         """
         data = {
-            "temperature": self.temperature,
+            # "temperature": self.temperature,
             "proba": self.proba,
-            "score": self.score,
-            "score_without_punition": self.score_without_punition,
+            # "score": self.score,
+            # "score_without_punition": self.score_without_punition,
             "modele_valide": self.modele_valide,
             "time_axis": self.time_axis,
             "score_kept": self.score_kept
@@ -89,7 +92,7 @@ def recuit_simule(T_init, alpha, nom, fonction_transformee, evol_temp, nb_iter, 
 
     for iteration in tqdm(range(nb_iter)):
         # on commence par appliquer une transformation aléatoire
-        modele = fonction_transformee(modele_kept)# , instance=instance, graphe_matrix=graphe_matrix)
+        modele = fonction_transformee(modele_kept, instance, graphe_matrix)# , instance=instance, graphe_matrix=graphe_matrix)
 
         # on détermine le score du modèle ainsi modifié
         score, valide, score_without_punition, time_axis = evaluation_model(modele, alpha, instance, graphe_matrix)
