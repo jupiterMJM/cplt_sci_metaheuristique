@@ -24,7 +24,6 @@ print("[INFO] Modules importés")
 ###################################################################
 # configuration de la simulation
 # configuration
-T_init = 10
 lbd = 0.9999
 nb_iter = 50000
 num_instance = "inst1"
@@ -37,8 +36,8 @@ def f(temp):
     #     return T_init / (iter // 10000 +1)
     return temp * lbd
 
-# on met la date et l'heure de la simu
-nom_folder = f"{num_instance}_{transformee.__name__}_{T_init}_{lbd}_{alpha}"
+# # on met la date et l'heure de la simu
+# nom_folder = f"{num_instance}_{transformee.__name__}_{T_init}_{lbd}_{alpha}"
 ###################################################################
 
 
@@ -52,15 +51,22 @@ print("Matrice des distances calculée")
 # on regarde si le dossier nom_folder existe
 # s'il existe on lève une erreur
 # sinon on le créé
-if os.path.exists(f"resultats/{nom_folder}"):
-    raise ValueError("le dossier existe déjà, veuillez changer le nom de la simulation")
-else:
-    os.mkdir(f"resultats/{nom_folder}")
+# if os.path.exists(f"resultats/{nom_folder}"):
+#     raise ValueError("le dossier existe déjà, veuillez changer le nom de la simulation")
+# else:
+#     os.mkdir(f"resultats/{nom_folder}")
 
-for i in range(10):
-    print(f"itération {i+1}")
-    # on lance la simulation
-    historique = recuit_simule(T_init, alpha, nom_folder, transformee, f, nb_iter, instance, graphe_matrix)
-    print("sauvegarde des données")
-    historique.save(f"resultats/{nom_folder}/simu_{i}.json")
-    print("fin de l'itération")
+for T_init in (3, 5, 7, 10, 20, 50, 100, 500, 1000):
+    # on met la date et l'heure de la simu
+    nom_folder = f"{num_instance}_{transformee.__name__}_{T_init}_{lbd}_{alpha}"
+    if os.path.exists(f"resultats/{nom_folder}"):
+        raise ValueError("le dossier existe déjà, veuillez changer le nom de la simulation")
+    else:
+        os.mkdir(f"resultats/{nom_folder}")
+    for i in range(10):
+        print(f"itération {i+1}")
+        # on lance la simulation
+        historique = recuit_simule(T_init, alpha, nom_folder, transformee, f, nb_iter, instance, graphe_matrix)
+        print("sauvegarde des données")
+        historique.save(f"resultats/{nom_folder}/simu_{i}.json")
+        print("fin de l'itération")
