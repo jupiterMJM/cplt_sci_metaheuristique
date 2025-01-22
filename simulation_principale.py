@@ -24,12 +24,13 @@ print("[INFO] Modules importés")
 ###################################################################
 # configuration de la simulation
 # configuration
-T_final = 0.1
+T_final = 1
+T_init = 1000
 nb_iter = 10000
 num_instance = "inst1"
-transformee = transformee_pick_the_furthest
+transformee = transformee_pick_among_non_valid
 path_to_instance = f"data/{num_instance}"
-alpha = 1000
+alpha = 5000
 
 def f(temp):
     # if iter % 10000 == 0:
@@ -57,19 +58,19 @@ print("Matrice des distances calculée")
 # else:
 #     os.mkdir(f"resultats/{nom_folder}")
 
-for T_init in  (5, 10, 20, 50, 100, 500, 1000):
-    lbd = np.exp(np.log(T_final/T_init)/nb_iter)
-    print("[INFO] Simulation avec T_init = ", T_init, " et lbd = ", lbd)
-    # on met la date et l'heure de la simu
-    nom_folder = f"{num_instance}_{transformee.__name__}_{T_init}_{lbd}_{alpha}"
-    if os.path.exists(f"resultats/{nom_folder}"):
-        raise ValueError("le dossier existe déjà, veuillez changer le nom de la simulation")
-    else:
-        os.mkdir(f"resultats/{nom_folder}")
-    for i in range(nb_simu):
-        print(f"itération {i+1}")
-        # on lance la simulation
-        historique = recuit_simule(T_init, alpha, nom_folder, transformee, f, nb_iter, instance, graphe_matrix)
-        print("sauvegarde des données")
-        historique.save(f"resultats/{nom_folder}/simu_{i}.json")
-        print("fin de l'itération")
+
+lbd = np.exp(np.log(T_final/T_init)/nb_iter)
+print("[INFO] Simulation avec T_init = ", T_init, " et lbd = ", lbd)
+# on met la date et l'heure de la simu
+nom_folder = f"{num_instance}_{transformee.__name__}_{T_init}_{lbd}_{alpha}"
+if os.path.exists(f"resultats/{nom_folder}"):
+    raise ValueError("le dossier existe déjà, veuillez changer le nom de la simulation")
+else:
+    os.mkdir(f"resultats/{nom_folder}")
+for i in range(nb_simu):
+    print(f"itération {i+1}")
+    # on lance la simulation
+    historique = recuit_simule(T_init, alpha, nom_folder, transformee, f, nb_iter, instance, graphe_matrix)
+    print("sauvegarde des données")
+    historique.save(f"resultats/{nom_folder}/simu_{i}.json")
+    print("fin de l'itération")
