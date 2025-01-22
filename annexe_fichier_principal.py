@@ -46,6 +46,7 @@ class Historique:
         self.time_axis = []
         self.score_kept = []
         self.i = 0  # on ne veut pas garder toutes les données, uniquement 1 sur 5
+        self.model = None
 
     def append(self, temperature, proba, score, score_without_punition, valide_kept, time_axis, score_kept):
         self.i += 1
@@ -58,6 +59,9 @@ class Historique:
             self.time_axis.append(time_axis)
             self.score_kept.append(score_kept)
 
+    def keep_model(self, model):
+        self.model = model
+
     def save(self, path):
         """
         on enregistre les données au format json
@@ -69,7 +73,8 @@ class Historique:
             # "score_without_punition": self.score_without_punition,
             "modele_valide": self.modele_valide,
             "time_axis": self.time_axis,
-            "score_kept": self.score_kept
+            "score_kept": self.score_kept,
+            "model": self.model
         }
         with open(path, "w") as f:
             json.dump(data, f)
@@ -123,6 +128,7 @@ def recuit_simule(T_init, alpha, nom, fonction_transformee, evol_temp, nb_iter, 
         # on met à jour la température puis ça repart
         temperature = evol_temp(temperature)
     if build_historique:
+        historique.keep_model(modele_kept)
         return historique
     else:
         return score_kept, valide_kept, score_without_punition_kept, time_axis

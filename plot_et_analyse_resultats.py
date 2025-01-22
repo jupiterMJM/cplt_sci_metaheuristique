@@ -29,10 +29,13 @@ def extract_mean_and_IC(path_to_folder, Z_alpha_sur_2 = 1.96):
     for file in files:
         with open(f"{path_to_folder}/{file}", "r") as f:
             temp = json.load(f)
+            # on enlève la données "modele"
+            modele = temp.pop("model")
             temp = pd.DataFrame(temp)
             all_data.append(temp)
             if max(temp["modele_valide"]) == 21:
                 print(file)
+                print(modele)
 
     moyenne = sum(all_data) / len(all_data)
     variance = sum([(data - moyenne) ** 2 for data in all_data]) / len(all_data)
@@ -40,11 +43,12 @@ def extract_mean_and_IC(path_to_folder, Z_alpha_sur_2 = 1.96):
     ic = Z_alpha_sur_2 * ecart_type / np.sqrt(len(all_data))
     return moyenne, ic, all_data
 
-path_to_data = r"resultats\inst1_transformee_pick_among_non_valid_1000_0.9993094630025899_5000\simu_12.json"
+path_to_data = r"resultats\inst1_transformee_pick_among_non_valid_1000_0.9993094630025899_5000\simu_13.json"
 # path_to_data = r"resultats\inst1_transformee_pick_2_500_0.9991486432908031_1000\simu_0.json"
 if path_to_data[-5:] == ".json":
     with open(path_to_data, "r") as f:
         data = json.load(f)
+        data.pop("model")
     mean = pd.DataFrame(data)
     ic = pd.DataFrame(data) * 0
     all_data = [mean]
