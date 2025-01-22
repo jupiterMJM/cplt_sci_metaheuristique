@@ -24,10 +24,10 @@ print("[INFO] Modules importés")
 ###################################################################
 # configuration de la simulation
 # configuration
-lbd = 0.9999
-nb_iter = 50000
+T_final = 0.1
+nb_iter = 10000
 num_instance = "inst1"
-transformee = transformee_pick_random
+transformee = transformee_pick_the_furthest
 path_to_instance = f"data/{num_instance}"
 alpha = 1000
 
@@ -38,6 +38,7 @@ def f(temp):
 
 # # on met la date et l'heure de la simu
 # nom_folder = f"{num_instance}_{transformee.__name__}_{T_init}_{lbd}_{alpha}"
+nb_simu = 30
 ###################################################################
 
 
@@ -56,14 +57,16 @@ print("Matrice des distances calculée")
 # else:
 #     os.mkdir(f"resultats/{nom_folder}")
 
-for T_init in (3, 5, 7, 10, 20, 50, 100, 500, 1000):
+for T_init in  (5, 10, 20, 50, 100, 500, 1000):
+    lbd = np.exp(np.log(T_final/T_init)/nb_iter)
+    print("[INFO] Simulation avec T_init = ", T_init, " et lbd = ", lbd)
     # on met la date et l'heure de la simu
     nom_folder = f"{num_instance}_{transformee.__name__}_{T_init}_{lbd}_{alpha}"
     if os.path.exists(f"resultats/{nom_folder}"):
         raise ValueError("le dossier existe déjà, veuillez changer le nom de la simulation")
     else:
         os.mkdir(f"resultats/{nom_folder}")
-    for i in range(10):
+    for i in range(nb_simu):
         print(f"itération {i+1}")
         # on lance la simulation
         historique = recuit_simule(T_init, alpha, nom_folder, transformee, f, nb_iter, instance, graphe_matrix)

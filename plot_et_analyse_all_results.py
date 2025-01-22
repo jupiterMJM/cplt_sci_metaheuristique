@@ -15,9 +15,11 @@ import os
 import pandas as pd
 
 # extraction des données
-def extract_mean_and_variance(path_to_folder):
+def extract_mean_and_IC(path_to_folder, Z_alpha_sur_2 = 1.96):
     """
     on extrait toutes les données présentes dans le dossier path_to_folder
+    IC: pour intervalle de confiance
+    z_alpha sur 2 pour un intervalle de conf à 95%
     """
     # on récupère la liste des fichiers
     files = os.listdir(path_to_folder)
@@ -33,7 +35,8 @@ def extract_mean_and_variance(path_to_folder):
     moyenne = sum(all_data) / len(all_data)
     variance = sum([(data - moyenne) ** 2 for data in all_data]) / len(all_data)
     ecart_type = np.sqrt(variance)
-    return moyenne, ecart_type, all_data
+    ic = Z_alpha_sur_2 * ecart_type / np.sqrt(len(all_data))
+    return moyenne, ic, all_data
 
 
 # on liste les fichiers présents dans path_to_result
@@ -50,7 +53,7 @@ axs = fig.subplot_mosaic("""
                           1114
                           """)
 for file in files:
-    mean, variance, all_data = extract_mean_and_variance(path_to_result + "/" + file)
+    mean, ic, all_data = extract_mean_and_IC(path_to_result + "/" + file)
 
 
 
@@ -58,21 +61,21 @@ for file in files:
     axs['1'].plot(mean["score_kept"], label=file.split("_")[4])
     # for data in all_data:
     #     axs[0, 0].plot(data["score_kept"])
-    axs['1'].fill_between(mean.index, mean["score_kept"] - variance["score_kept"], mean["score_kept"] + variance["score_kept"], alpha=0.2)
+    axs['1'].fill_between(mean.index, mean["score_kept"] - ic["score_kept"], mean["score_kept"] + ic["score_kept"], alpha=0.2)
     axs['1'].set_title("Score moyen")
     axs['1'].legend()
 
 
     # courbe de la moyenne du "modele_valide" avec l'écart type
     axs['2'].plot(mean["modele_valide"])
-    axs['2'].fill_between(mean.index, mean["modele_valide"] - variance["modele_valide"], mean["modele_valide"] + variance["modele_valide"], alpha=0.2)
+    axs['2'].fill_between(mean.index, mean["modele_valide"] - ic["modele_valide"], mean["modele_valide"] + ic["modele_valide"], alpha=0.2)
     axs['2'].set_title("Modèle valide moyen")
     # for data in all_data:
     #     axs[0, 1].plot(data["modele_valide"])
 
     # courbe de la moyenne du "proba" avec l'écart type
     axs['3'].plot(mean["proba"])
-    axs['3'].fill_between(mean.index, mean["proba"] - variance["proba"], mean["proba"] + variance["proba"], alpha=0.2)
+    axs['3'].fill_between(mean.index, mean["proba"] - ic["proba"], mean["proba"] + ic["proba"], alpha=0.2)
     axs['3'].set_title("Proba")
 
 # on show

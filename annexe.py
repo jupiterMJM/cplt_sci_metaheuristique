@@ -11,6 +11,7 @@ def transformee_pick_2(liste_ville, *args):
     """
     temp = liste_ville.copy()
     i, j =random.sample(list(range(1, len(liste_ville))), 2)
+    assert i!= j
     temp[i], temp[j] = temp[j], temp[i]
     return temp
 
