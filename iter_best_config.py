@@ -30,14 +30,14 @@ print("[INFO] Modules importés")
 
 ###################################################################
 # configuration de la simulation
-grid_T_init = (10, 100, 500, 1000, 5000, 10000)
+grid_T_init = (10, 100, 500, 1000, 5000, 10000, 50000, 100000)
 grid_T_final = (1, 0.1, 0.01, 0.001)
 grid_alpha = (10, 100, 500, 1000, 5000, 10000)
 grid_transformee = (transformee_pick_the_furthest, transformee_pick_among_non_valid, transformee_pick_2, transformee_pick_random)
 
 all_the_grid = {"T_final": grid_T_final, "T_init": grid_T_init, "alpha": grid_alpha, "transformee": grid_transformee}
 nb_iter = 10000
-num_instance = "inst1"
+num_instance = "inst2"
 path_to_instance = f"data/{num_instance}"
 
 nb_simu = 10
