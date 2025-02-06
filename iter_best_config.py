@@ -34,14 +34,30 @@ grid_T_init = (10, 100, 500, 1000, 5000, 10000, 50000, 100000)
 grid_T_final = (1, 0.1, 0.01, 0.001)
 grid_alpha = (10, 100, 500, 1000, 5000, 10000)
 grid_transformee = (transformee_pick_the_furthest, transformee_pick_among_non_valid, transformee_pick_2, transformee_pick_random)
+path_to_save_historique = "./resultats/grid_on_inst1/"
 
 all_the_grid = {"T_final": grid_T_final, "T_init": grid_T_init, "alpha": grid_alpha, "transformee": grid_transformee}
 nb_iter = 10000
-num_instance = "inst2"
+num_instance = "inst1"
 path_to_instance = f"data/{num_instance}"
 
 nb_simu = 10
 ###################################################################
+
+
+if os.path.exists(path_to_save_historique):
+    print("le dossier existe déjà, veuillez changer le nom de la simulation")
+    # le supprimer si l'utilisateur entre "y"
+    if input("Voulez-vous le supprimer ? (y/n)") == "y":
+        # rmdir supprime le dossier et tout ce qu'il contient
+        import shutil
+        shutil.rmtree(path_to_save_historique)
+        os.mkdir(path_to_save_historique)
+    else:
+        exit()
+else:
+    os.mkdir(path_to_save_historique)
+
 
 # chargement de l'instance
 # calcul de la matrice des distances du graphe
@@ -82,7 +98,7 @@ while nb_config_not_changed < 6:
                 continue
             print("[INFO] On change le paramètre", cle_to_change, "avec la valeur", value)
             current_config[cle_to_change] = value
-            score_mean, valide_mean, score_without_punition_mean, time_axis_mean =mean_on_recuit_simule(T_init=current_config["T_init"], alpha=current_config["alpha"], nom=None, fonction_transformee=current_config["transformee"], T_final=current_config["T_final"], nb_iter=nb_iter, instance=instance, graphe_matrix=graphe_matrix, nb_simu=nb_simu)
+            score_mean, valide_mean, score_without_punition_mean, time_axis_mean, all_historique = mean_on_recuit_simule(T_init=current_config["T_init"], alpha=current_config["alpha"], nom=None, fonction_transformee=current_config["transformee"], T_final=current_config["T_final"], nb_iter=nb_iter, instance=instance, graphe_matrix=graphe_matrix, nb_simu=nb_simu)
             change_best_config = False
             if cle_to_change != "alpha" and score_mean < best_score:
                     change_best_config = True
@@ -101,6 +117,16 @@ while nb_config_not_changed < 6:
                 best_score_without_punition = score_without_punition_mean
                 best_config = current_config.copy()
                 nb_config_not_changed = 0
+
+                # et on sauvegarde les historiques correspondant
+                # on commence par créer le dossier correspondant à la best_config
+                name_config = "_".join([f"{value}" if type(value) in (str, int, float, np.int32) else value.__name__ for key, value in best_config.items()])
+                for i, historique in enumerate(all_historique):
+                    if not os.path.exists(path_to_save_historique + name_config):
+                        os.mkdir(path_to_save_historique + name_config)
+                    path_to_save = path_to_save_historique + name_config + f"/histo_{i}"
+                    historique.save(path_to_save)
+
         if has_changed:
             nb_config_not_changed = 0
         else:

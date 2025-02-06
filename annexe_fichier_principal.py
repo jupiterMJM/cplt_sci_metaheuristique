@@ -80,7 +80,7 @@ class Historique:
             json.dump(data, f)
 
 
-def recuit_simule(T_init, alpha, nom, fonction_transformee, evol_temp, nb_iter, instance, graphe_matrix, build_historique=True, taqadum=True):
+def recuit_simule(T_init, alpha, nom, fonction_transformee, evol_temp, nb_iter, instance, graphe_matrix, build_historique=True, taqadum=True, keep_one_on=1):
     """
     fonction principale de la simulation
     reprend l'entièreté de la simulation présente dans le fichier brouillon.ipynb
@@ -93,6 +93,7 @@ def recuit_simule(T_init, alpha, nom, fonction_transformee, evol_temp, nb_iter, 
     proba = 1
     modele_kept = modele.copy()
     score_kept, valide_kept, score_without_punition_kept,  time_axis = evaluation_model(modele_kept, alpha, instance, graphe_matrix)
+    iterateur = 0
     if build_historique: historique = Historique()
 
     if taqadum:
@@ -100,6 +101,7 @@ def recuit_simule(T_init, alpha, nom, fonction_transformee, evol_temp, nb_iter, 
     else:
         iterate_on_it = range(nb_iter)
     for iteration in iterate_on_it:
+        iterateur += 1
         # on commence par appliquer une transformation aléatoire
         modele = fonction_transformee(modele_kept, instance, graphe_matrix)# , instance=instance, graphe_matrix=graphe_matrix)
 
@@ -123,7 +125,9 @@ def recuit_simule(T_init, alpha, nom, fonction_transformee, evol_temp, nb_iter, 
                 score_without_punition_kept = score_without_punition
 
         # on enregistre les données
-        if build_historique: historique.append(temperature=temperature, proba=proba, score=score, score_without_punition=score_without_punition, valide_kept=valide_kept, time_axis=time_axis, score_kept=score_kept)
+
+        if build_historique and iterateur%keep_one_on==0: 
+            historique.append(temperature=temperature, proba=proba, score=score, score_without_punition=score_without_punition, valide_kept=valide_kept, time_axis=time_axis, score_kept=score_kept)
 
         # on met à jour la température puis ça repart
         temperature = evol_temp(temperature)
@@ -143,13 +147,16 @@ def mean_on_recuit_simule(T_init, alpha, nom, fonction_transformee, T_final, nb_
     all_valide = list()
     all_score_without_punition = list()
     all_time_axis = list()
+    all_historique = list()
     for i in range(nb_simu):
         # print("simulation", i+1)
         lbd = np.exp(np.log(T_final/T_init)/nb_iter)
         evol_temp = lambda temp: lbd*temp
-        score, valide, score_without_punition, time_axis = recuit_simule(T_init, alpha, nom, fonction_transformee, evol_temp, nb_iter, instance, graphe_matrix, build_historique=False, taqadum=False)
+        historique = recuit_simule(T_init, alpha, nom, fonction_transformee, evol_temp, nb_iter, instance, graphe_matrix, build_historique=True, taqadum=False, keep_one_on=10)
+        score, valide, score_without_punition, time_axis = historique.score_kept[-1], historique.modele_valide[-1], historique.score_without_punition[-1], historique.time_axis[-1]
         all_score.append(score)
         all_valide.append(valide)
         all_score_without_punition.append(score_without_punition)
         all_time_axis.append(time_axis)
-    return np.mean(all_score), np.mean(all_valide), np.mean(all_score_without_punition), np.mean(all_time_axis)
+        all_historique.append(historique)
+    return np.mean(all_score), np.mean(all_valide), np.mean(all_score_without_punition), np.mean(all_time_axis), all_historique
