@@ -25,6 +25,7 @@ import time
 from datetime import datetime
 from annexe_fichier_principal import *
 import os
+import random as rd
 print("[INFO] Modules importés")
 
 
@@ -34,11 +35,12 @@ grid_T_init = (10, 100, 500, 1000, 5000, 10000, 50000, 100000)
 grid_T_final = (1, 0.1, 0.01, 0.001)
 grid_alpha = (10, 100, 500, 1000, 5000, 10000)
 grid_transformee = (transformee_pick_the_furthest, transformee_pick_among_non_valid, transformee_pick_2, transformee_pick_random)
-path_to_save_historique = "./resultats/grid_on_inst1/"
+grid_calcule_penalite = ("binaire", "lineaire")
+path_to_save_historique = "./resultats/grid_on_inst2/"
 
-all_the_grid = {"T_final": grid_T_final, "T_init": grid_T_init, "alpha": grid_alpha, "transformee": grid_transformee}
+all_the_grid = {"T_final": grid_T_final, "T_init": grid_T_init, "alpha": grid_alpha, "transformee": grid_transformee, "calcul_penalite": grid_calcule_penalite}
 nb_iter = 10000
-num_instance = "inst1"
+num_instance = "inst2"
 path_to_instance = f"data/{num_instance}"
 
 nb_simu = 10
@@ -73,7 +75,8 @@ current_config = {
     "T_init": np.random.choice(grid_T_init),
     "T_final": np.random.choice(grid_T_final),
     "alpha": np.random.choice(grid_alpha),
-    "transformee": np.random.choice(grid_transformee)
+    "transformee": np.random.choice(grid_transformee),
+    "calcul_penalite": rd.choice(grid_calcule_penalite)
 }
 
 # initialisation des variables
@@ -98,11 +101,11 @@ while nb_config_not_changed < 6:
                 continue
             print("[INFO] On change le paramètre", cle_to_change, "avec la valeur", value)
             current_config[cle_to_change] = value
-            score_mean, valide_mean, score_without_punition_mean, time_axis_mean, all_historique = mean_on_recuit_simule(T_init=current_config["T_init"], alpha=current_config["alpha"], nom=None, fonction_transformee=current_config["transformee"], T_final=current_config["T_final"], nb_iter=nb_iter, instance=instance, graphe_matrix=graphe_matrix, nb_simu=nb_simu)
+            score_mean, valide_mean, score_without_punition_mean, time_axis_mean, all_historique = mean_on_recuit_simule(T_init=current_config["T_init"], alpha=current_config["alpha"], nom=None, fonction_transformee=current_config["transformee"], T_final=current_config["T_final"], nb_iter=nb_iter, instance=instance, graphe_matrix=graphe_matrix, nb_simu=nb_simu, calcul_penalite=current_config["calcul_penalite"])
             change_best_config = False
-            if cle_to_change != "alpha" and score_mean < best_score:
+            if cle_to_change not in  ("alpha", "calcul_penalite") and score_mean < best_score:
                     change_best_config = True
-            elif cle_to_change == "alpha" and (valide_mean >= best_valide):
+            elif cle_to_change in ("alpha", "calcul_penalite") and (valide_mean >= best_valide):
                     if valide_mean == best_valide:
                         if score_without_punition_mean < best_score_without_punition:
                             change_best_config = True

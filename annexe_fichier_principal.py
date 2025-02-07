@@ -4,7 +4,7 @@ from tqdm import tqdm
 from scipy.stats import bernoulli
 import numpy as np
 
-def evaluation_model(liste_prop, alpha, instance, graphe_matrix):
+def evaluation_model(liste_prop, alpha, instance, graphe_matrix, calcul_penalite="binaire", cst_norma_calcul=1):
     """
     évalue le modèle en fonction de la liste des propositions
     la formule choisie est la somme des distances plus une pénalité binaire pour chaque consigne de temps non respectée
@@ -30,7 +30,10 @@ def evaluation_model(liste_prop, alpha, instance, graphe_matrix):
 
         # on ajoute une pénalité si on arrive trop tard (consigne de temps non respectée)
         if time_axis > instance[prop]["wend"]:
-            score += alpha
+            if calcul_penalite == "binaire":
+                score += alpha
+            elif calcul_penalite == "lineaire":
+                score += alpha * (time_axis - instance[prop]["wend"])/cst_norma_calcul    # cette "normalisation" est nécessaire pour conserver des odg acceptables
             valide -= 1
     
     return score, valide, score_without_punition, time_axis
@@ -80,7 +83,7 @@ class Historique:
             json.dump(data, f)
 
 
-def recuit_simule(T_init, alpha, nom, fonction_transformee, evol_temp, nb_iter, instance, graphe_matrix, build_historique=True, taqadum=True, keep_one_on=1):
+def recuit_simule(T_init, alpha, nom, fonction_transformee, evol_temp, nb_iter, instance, graphe_matrix, calcul_penalite="binaire", build_historique=True, taqadum=True, keep_one_on=1):
     """
     fonction principale de la simulation
     reprend l'entièreté de la simulation présente dans le fichier brouillon.ipynb
@@ -92,7 +95,7 @@ def recuit_simule(T_init, alpha, nom, fonction_transformee, evol_temp, nb_iter, 
     temperature = T_init
     proba = 1
     modele_kept = modele.copy()
-    score_kept, valide_kept, score_without_punition_kept,  time_axis = evaluation_model(modele_kept, alpha, instance, graphe_matrix)
+    score_kept, valide_kept, score_without_punition_kept,  time_axis = evaluation_model(modele_kept, alpha, instance, graphe_matrix, calcul_penalite=calcul_penalite, cst_norma_calcul = max([instance[i]["wend"] for i in modele_kept]))
     iterateur = 0
     if build_historique: historique = Historique()
 
@@ -106,7 +109,7 @@ def recuit_simule(T_init, alpha, nom, fonction_transformee, evol_temp, nb_iter, 
         modele = fonction_transformee(modele_kept, instance, graphe_matrix)# , instance=instance, graphe_matrix=graphe_matrix)
 
         # on détermine le score du modèle ainsi modifié
-        score, valide, score_without_punition, time_axis = evaluation_model(modele, alpha, instance, graphe_matrix)
+        score, valide, score_without_punition, time_axis = evaluation_model(modele, alpha, instance, graphe_matrix, calcul_penalite, cst_norma_calcul=max([instance[i]["wend"] for i in modele_kept]))
 
         # on accepte ou non la modification (recuit simulé)
         if score <= score_kept:
@@ -116,6 +119,7 @@ def recuit_simule(T_init, alpha, nom, fonction_transformee, evol_temp, nb_iter, 
             score_without_punition_kept = score_without_punition
         else:   # alors score >= score_kept
             # la proba est calculée ici pour des soucis de cohérences avec les historiques
+            # print(score, score_kept, temperature, -(score-score_kept)/temperature)
             proba = np.exp(-(score-score_kept)/temperature)
             # if proba == 1: print(score, score_kept, temperature)
             if bernoulli.rvs(proba, size=1):    # variable de bernoulli
@@ -139,7 +143,7 @@ def recuit_simule(T_init, alpha, nom, fonction_transformee, evol_temp, nb_iter, 
     
 
 
-def mean_on_recuit_simule(T_init, alpha, nom, fonction_transformee, T_final, nb_iter, instance, graphe_matrix, nb_simu):
+def mean_on_recuit_simule(T_init, alpha, nom, fonction_transformee, T_final, nb_iter, instance, graphe_matrix, nb_simu, calcul_penalite):
     """
     on fait une moyenne sur plusieurs simulations
     """
@@ -152,7 +156,7 @@ def mean_on_recuit_simule(T_init, alpha, nom, fonction_transformee, T_final, nb_
         # print("simulation", i+1)
         lbd = np.exp(np.log(T_final/T_init)/nb_iter)
         evol_temp = lambda temp: lbd*temp
-        historique = recuit_simule(T_init, alpha, nom, fonction_transformee, evol_temp, nb_iter, instance, graphe_matrix, build_historique=True, taqadum=False, keep_one_on=10)
+        historique = recuit_simule(T_init, alpha, nom, fonction_transformee, evol_temp, nb_iter, instance, graphe_matrix, calcul_penalite, build_historique=True, taqadum=False, keep_one_on=10)
         score, valide, score_without_punition, time_axis = historique.score_kept[-1], historique.modele_valide[-1], historique.score_without_punition[-1], historique.time_axis[-1]
         all_score.append(score)
         all_valide.append(valide)
