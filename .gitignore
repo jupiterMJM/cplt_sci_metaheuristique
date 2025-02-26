@@ -4,3 +4,13 @@ data/*
 *.pyc
 resultats/*
 resultat_valides_mais_plus_utiles_nrmlt/*
+plot_et_analyse_grid_search.py
+rapport/photo
+rapport/main.aux
+rapport/main.fdb_latexmk
+rapport/main.fls
+rapport/main.log
+rapport/main.pdf
+rapport/main.out
+rapport/main.synctex.gz
+rapport/main.toc

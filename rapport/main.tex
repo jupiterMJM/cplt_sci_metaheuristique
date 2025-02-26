@@ -1,0 +1,164 @@
+\documentclass[a4paper, 12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+\title{Parcours CS+R \\ Info2 : métaheuristique \\ Rapport de fin de Projet}
+\author{Maxence Barré}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+
+\section{Introduction et présentation du problème}
+\subsection{Contexte}
+Certains problèmes algorithmiques sont très difficiles (voire impossible) à résoudre de manière exacte en un temps raisonnable. 
+C'est le cas de problèmes NP-complets, pour lesquels il n'existe pas d'algorithme polynomial permettant de les résoudre de manière exacte. 
+Pour ces problèmes, on utilise en autres les métaheuristiques, qui sont des algorithmes permettant de trouver une solution approchée en un temps raisonnable.
+Ces algorithmes sont souvent inspirés de phénomènes naturels, comme le recuit simulé, qui est inspiré du refroidissement d'un métal, ou les algorithmes génétiques, qui sont inspirés de la théorie de l'évolution.
+
+L'objectif de ce complément scientifique de CS+R a justement été de nous familiariser avec ces algorithmes en travaillant sur un projet concret : la "résolution" du voyageur du commerce avec fenètres de temps.
+
+\subsection{Problème du voyageur du commerce avec fenêtres de temps}
+Le problème du voyageur du commerce est un problème classique en optimisation combinatoire. Il s'agit de trouver le plus court chemin passant par un ensemble de villes, en visitant chaque ville une seule fois et en revenant à la ville de départ. 
+
+Dans la variante avec fenêtres de temps, chaque ville doit être visitée dans une plage de temps spécifique. Cela ajoute une contrainte supplémentaire au problème, rendant sa résolution encore plus complexe. Les fenêtres de temps peuvent représenter des horaires d'ouverture et de fermeture, des créneaux de livraison, ou d'autres contraintes temporelles.
+
+Formellement, le problème peut être décrit comme suit :
+- Soit un ensemble de villes $V = \{v_1, v_2, \ldots, v_n\}$.
+- Chaque ville $v_i$ est associée à une fenêtre de temps $[a_i, b_i]$ pendant laquelle elle doit être visitée.
+- Il existe un coût $c_{ij}$ pour voyager de la ville $v_i$ à la ville $v_j$.
+
+L'objectif est de trouver une permutation des villes $(v_{\sigma(1)}, v_{\sigma(2)}, \ldots, v_{\sigma(n)})$ qui minimise le coût total du voyage tout en respectant les fenêtres de temps, c'est-à-dire :
+\[
+\min \sum_{i=1}^{n-1} c_{\sigma(i)\sigma(i+1)} + c_{\sigma(n)\sigma(1)}
+\]
+sous les contraintes :
+\[
+a_{\sigma(i)} \leq t_{\sigma(i)} \leq b_{\sigma(i)}, \quad \forall i \in \{1, \ldots, n\}
+\]
+où $t_{\sigma(i)}$ est le temps d'arrivée à la ville $v_{\sigma(i)}$.
+
+
+\section{Méthodologie adoptée}
+\subsection{Présentation de la méthodologie}
+Pour résoudre ce problème, il a été décidé d'adopter une approche "simple" à comprendre mais offrant la possibilité d'implémenter plus de fonctionnalités annexes.
+C'est pourquoi l'algorithme de recuit simulé a été choisi pour résoudre le problème : en effet, son implémentation est simple et universelle mais offre l'avantage de pouvoir jouer
+facilement sur de nombreux paramètres pour l'adapter à notre problème.
+Ce projet a donc été découpé en 3 temps:
+\begin{itemize}
+    \item Implémentation de l'algorithme de recuit simulé
+    \item Création de plusieurs fonctions de transformation de l'état courant et identification des paramètres critiques de l'algorithme
+    \item Création d'un programme d'optimisation des paramètres de l'algorithme par search-grid.
+\end{itemize}
+
+\subsection{Implémentation de l'algorithme de recuit simulé}
+L'algorithme de recuit simulé est un algorithme de recherche locale probabiliste qui permet de trouver une solution approchée à un problème d'optimisation.
+Il est inspiré du processus de refroidissement d'un métal, où l'on chauffe un matériau à haute température puis on le refroidit lentement pour atteindre un état stable.
+L'algorithme de recuit simulé fonctionne de la manière suivante :
+\begin{itemize}
+    \item On part d'une solution initiale $s$.
+    \item À chaque itération, on génère une solution voisine $s'$ de $s$.
+    \item Si la solution $s'$ est meilleure que la solution $s$, on l'accepte.
+    \item Sinon, on l'accepte avec une probabilité $p$ qui diminue exponentiellement au fur et à mesure des itérations.
+    \item On répète ce processus jusqu'à atteindre un critère d'arrêt.
+\end{itemize}
+
+Pour notre problème, la solution $s$ est une permutation des villes, et la solution voisine $s'$ est obtenue en appliquant une fonction de \textit{transformée} (voir section suivante) à la solution courante $s$.
+
+\subsection{Fonctions de transformation de l'état courant et identification des paramètres critiques de l'algorithme}
+Pour améliorer les performances de l'algorithme de recuit simulé, il est important de choisir judicieusement les fonctions de transformation de l'état courant.
+Dans la version "basique" de l'algorithme, on peut par exemple choisir une fonction de transformation qui permute deux villes aléatoires dans la solution courante.
+Néanmoins, la simplicité d'implémentation de l'algorithme de recuit simulé permet d'expérimenter avec différentes fonctions de transformation pour voir comment elles affectent les performances de l'algorithme. 
+Après réfléxion, les fonctions de transformée suivantes ont été implémentées (à noter que la dénomination correspond à celle adoptée dans le programme python)
+\begin{itemize}
+    \item transformee\_pick\_2 : Permute deux villes aléatoires dans la solution courante
+    \item transformee\_pick\_random : permute aléatoirement un nombre aléatoire de villes dans la solution courante
+    \item transformee\_pick\_among\_non\_valid : choisit aléatoirement une ville dont le critère temporel n'est pas valide et la permute aléatoirement avec une autre ville
+    \item transformee\_pick\_the\_furthest : choisit la ville la plus éloignée de la ville précédente et la permute avec une autre ville
+\end{itemize}
+
+Par intuition, on pourrait penser que les 2 dernières fonctions de transformées sont les plus efficaces, car elles permettent de "casser" plus facilement les configurations locales et d'explorer de nouvelles solutions. De plus, ce sont celles qui ont le plus de chance de valider les contraintes temporelles pour chacune des villes.
+
+Une fois ces fonctions de transformées implémentées, il a été décidé de déterminer les paramètres critiques de l'algorithme de recuit simulé pour notre problème:
+\begin{itemize}
+    \item la température initiale $T_{init}$ détermine la probabilité d'accepter une solution moins bonne que la solution courante au début de l'algorithme.
+    \item la température finale $T_{fin}$ détermine la probabilité d'accepter une solution moins bonne que la solution courante vers la fin de l'algorithme.
+    \item la pénalité $\alpha$ est appliquée  pour chaque ville dont la contrainte temporelle n'est pas respectée. Elle permet donc de pénaliser les solutions invalides.
+    \item la fonction de transformée parmi celles implémentées précédemment.
+    \item le calcul même des pénalités : celui-ci peut-être binaire: la pénalité $\alpha$ sera appliquée dès lors qu'une contrainte n'est pas respectée. Ou bien, linéaire: la pénalité $\alpha$ sera appliquée en fonction de l'écart entre la contrainte et la solution.
+\end{itemize}
+
+On note ainsi qu'un seul paramètre est considéré comme fixe et non-optimisable : le nombre d'itéations $n$ de l'algorithme. En effet, "optimiser" ce paramètre équivaut à faire tendre n vers plus l'infini : plus on itère, plus on a de chance de trouver une solution optimale. Néanmoins, il est important de noter que le temps de calcul augmente de manière linéaire avec le nombre d'itérations.
+Par ailleurs, la valeur de n est aussi conditionnée par la puissance de calcul de la machine sur laquelle on fait tourner l'algorithme.
+
+Ainsi, le paramètre de décroissance exponentielle de la température (noté $\lambda$) n'est pas considéré comme un paramètre critique de l'algorithme, car il est déterminé par les valeurs de $T_{init}$, $T_{fin}$ et $n$ selon la formule suivante :
+\[
+\lambda = \left( \frac{T_{fin}}{T_{init}} \right)^{\frac{1}{n}}
+\]
+
+\subsection{Premiers résultats}
+A FAIRE
+
+\subsection{Optimisation des paramètres de l'algorithme par search-grid}
+Une fois l'ensemble du programme implémenté et les premiers graphes étudiés, il a été décidé de créer un programme d'optimisation des paramètres de l'algorithme par search-grid, afin d'accélérer le processus d'optimisation des paramètres.
+Le programme d'optimisation fonctionne sous la forme d'un search-grid "local":
+\begin{itemize}
+    \item On fixe une valeur initiale aléatoire pour chaque paramètre à optimiser.
+    \item On définit une grille de valeurs pour chaque paramètre à optimsier.
+    \item On change un paramètre à la fois, en conservant les autres paramètres fixes.
+    \item On évalue les perfomances du recuit-simulé avec ce jeu de paramètres et on le compare aux performances précédentes.
+    \item On répète ce processus jusqu'à ce que les performances convergent.
+    \item On retourne les paramètres optimaux trouvés.
+\end{itemize}
+
+
+
+\section{Présentation des résultats}
+\subsection{Optimisation des paramètres sur la 1e instance}
+Après avoir lancé le programme d'optimisation des paramètres sur la 1e instance, les évolutions suivantes ont été obtenues :
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{photo/search_grid_inst1.png}
+    \caption{Optimisation des paramètres sur la 1e instance}
+    \label{fig:parametres_1}
+\end{figure}
+
+On peut voir que les performances de l'algorithme de recuit simulé s'améliorent au fur et à mesure des itérations de l'optimisation des paramètres.
+Notre analyse porte principalement sur 3 des 4 graphiques :
+\begin{itemize}
+    \item le score moyen montre l'évolution du score moyen des solutions trouvées par l'algorithme de recuit simulé au cours de l'optimisation des paramètres, en prenant en compte les pénalités.
+    Ce graphe est intéressant pour observer la qualité des solutions trouvées mais souffre néanmoins d'un biais important : les pénalités sont souvent prépondérantes dans le score final, et peuvent donc fausser l'analyse surtout lorsque l'on s'intéresse à différentes valeurs de $\alpha$.
+    \item c'est donc là tout l'intérèt du graphe du score normalisé : celui-ci correspond au score moyen divisé par la valeur du 1e score moyen (généralement le maximum). Ainsi, on peut observer l'évolution de la vitesse de convergence du score moyen, sans que les pénalités ne faussent notre interprétation.
+    \item enfin le dernier graphique "interessant" est celui du nombre moyen de villes validées : celui-ci permet de voir si l'algorithme de recuit simulé converge vers des solutions valides ou non. En effet, il est possible que l'algorithme converge vers des solutions invalides mais avec un score très bas, ce qui serait problématique.
+\end{itemize}
+
+Le dernier graphique (celui de la probabilité) correspond à la probabilité de l'algorithme de recuit simulé à chaque itération. Ce graphe a surtout un intérèt pour vérifier la cohérence des données : en effet, on s'attend à ce que la probabilité diminue exponentiellement au fur et à mesure des itérations, ce qui est bien le cas ici.
+
+On remarque notamment que les paramètres optimaux trouvés sont les suivants : \footnote{Ici, la pénalité est binaire car la fonctionnalité n'était pas encore implémentée.}
+\begin{itemize}
+    \item $T_{init} = 500$
+    \item $T_{fin} = 1$
+    \item $\alpha = 5000$
+    \item transformee\_pick\_among\_non\_valid
+\end{itemize}
+En particulier, grâce à ce jeu de paramètres, on obtient la solution suivante:
+$$['1', '17', '20', '10', '18', '19', '11', '6', '16', '2', '12', '13', '7', '14', '8', '3', '5', '9', '21', '4', '15']$$
+avec un score de 380, le meilleur score de la solution étant de 378. On remarque que tout se joue à une intervertion de la 3e et de la 4e ville.
+
+\section{Conclusion et ouverture}
+
+
+
+\end{document}

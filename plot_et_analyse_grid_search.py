@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pandas as pd
+from scoreEtudiant import *
 
 # extraction des données
 def extract_mean_and_IC(path_to_folder, Z_alpha_sur_2 = 1.96):
@@ -34,10 +35,12 @@ def extract_mean_and_IC(path_to_folder, Z_alpha_sur_2 = 1.96):
             del temp["model"]
             temp = pd.DataFrame(temp)
             all_data.append(temp)
-            if max(temp["modele_valide"]) == 21:
+            if max(temp["modele_valide"]) >= 35:
                 print(file)
                 print(model)
                 print(folder)
+                instance = load_instance("data/inst2")
+                print(compute_score(instance, model))
 
     moyenne = sum(all_data) / len(all_data)
     variance = sum([(data - moyenne) ** 2 for data in all_data]) / len(all_data)
