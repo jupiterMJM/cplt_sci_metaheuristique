@@ -36,11 +36,11 @@ grid_T_final = (1, 0.1, 0.01, 0.001)
 grid_alpha = (10, 100, 500, 1000, 5000, 10000)
 grid_transformee = (transformee_pick_the_furthest, transformee_pick_among_non_valid, transformee_pick_2, transformee_pick_random)
 grid_calcule_penalite = ("binaire", "lineaire")
-path_to_save_historique = "./resultats/grid_on_inst2/"
+path_to_save_historique = "./resultats/grid_on_inst3_iter_increased/"
 
 all_the_grid = {"T_final": grid_T_final, "T_init": grid_T_init, "alpha": grid_alpha, "transformee": grid_transformee, "calcul_penalite": grid_calcule_penalite}
-nb_iter = 10000
-num_instance = "inst2"
+nb_iter = 50000
+num_instance = "inst3"
 path_to_instance = f"data/{num_instance}"
 
 nb_simu = 10
@@ -76,7 +76,7 @@ current_config = {
     "T_final": np.random.choice(grid_T_final),
     "alpha": np.random.choice(grid_alpha),
     "transformee": np.random.choice(grid_transformee),
-    "calcul_penalite": rd.choice(grid_calcule_penalite)
+    "calcul_penalite": "binaire"
 }
 
 # initialisation des variables
