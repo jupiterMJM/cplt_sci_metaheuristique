@@ -56,28 +56,31 @@ else:
     mean, ic, all_data = extract_mean_and_IC(path_to_folder=path_to_data)
 
 # affichage des courbes
-fig, axs = plt.subplots(2, 2)
+fig = plt.figure()
+fig.suptitle("Analyse des résultats de la simulation")
+axs = fig.subplot_mosaic("""112
+                            113""")
 fig.suptitle("Analyse des résultats de la simulation")
 
 # courbe de la moyenne du score avec l'écart type
-axs[0, 0].plot(mean["score_kept"])
+axs["1"].plot(mean["score_kept"])
 # for data in all_data:
 #     axs[0, 0].plot(data["score_kept"])
-axs[0, 0].fill_between(mean.index, mean["score_kept"] - ic["score_kept"], mean["score_kept"] + ic["score_kept"], alpha=0.2)
-axs[0, 0].set_title("Score moyen")
+axs["1"].fill_between(mean.index, mean["score_kept"] - ic["score_kept"], mean["score_kept"] + ic["score_kept"], alpha=0.2)
+axs["1"].set_title("Score moyen")
 
 
 # courbe de la moyenne du "modele_valide" avec l'écart type
-axs[0, 1].plot(mean["modele_valide"])
-axs[0, 1].fill_between(mean.index, mean["modele_valide"] - ic["modele_valide"], mean["modele_valide"] + ic["modele_valide"], alpha=0.2)
-axs[0, 1].set_title("Modèle valide moyen")
+axs["2"].plot(mean["modele_valide"])
+axs["2"].fill_between(mean.index, mean["modele_valide"] - ic["modele_valide"], mean["modele_valide"] + ic["modele_valide"], alpha=0.2)
+axs["2"].set_title("Modèle valide moyen")
 # for data in all_data:
 #     axs[0, 1].plot(data["modele_valide"])
 
 # courbe de la moyenne du "proba" avec l'écart type
-axs[1, 0].plot(mean["proba"])
-axs[1, 0].fill_between(mean.index, mean["proba"] - ic["proba"], mean["proba"] + ic["proba"], alpha=0.2)
-axs[1, 0].set_title("Proba")
+axs["3"].plot(mean["proba"])
+axs["3"].fill_between(mean.index, mean["proba"] - ic["proba"], mean["proba"] + ic["proba"], alpha=0.2)
+axs["3"].set_title("Proba")
 
 # on show
 plt.show()

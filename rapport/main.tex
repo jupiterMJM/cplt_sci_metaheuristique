@@ -109,7 +109,18 @@ Ainsi, le paramètre de décroissance exponentielle de la température (noté $\
 \]
 
 \subsection{Premiers résultats}
-A FAIRE
+Une fois que ces premières fonctionnalités sont implémentées, on peut réaliser les premiers entrainement du modèle. Pour ce faire, on s'intéresse d'abord à la 1e instance, avec un jeu de paramètres ici choisi au hasard. Nous ne préciserons pas ces paramètres car ils ne nous intéressent pas ici et feront l'objet de la section suivante.
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width = \textwidth]{photo/prem_resultats.png}
+    \caption{Obtention des premiers graphes-résultats}
+\end{figure}
+Pour chaque modèle, nous nous interessons à l'évolution de 3 grandeurs:
+\begin{itemize}
+    \item Le score (ou score moyen) qui correspond au score marqué par le modèle (en comptant les pénalités).
+    \item le modèle valide moyen qui correspond au nombre de villes validées en moyenne.
+    \item la \textit{proba} qui indique l'évolution de la probabilité de prendre un modèle ayant marqué un score inférieur au modèle enregistré.
+\end{itemize}
 
 \subsection{Optimisation des paramètres de l'algorithme par search-grid}
 Une fois l'ensemble du programme implémenté et les premiers graphes étudiés, il a été décidé de créer un programme d'optimisation des paramètres de l'algorithme par search-grid, afin d'accélérer le processus d'optimisation des paramètres.
@@ -156,6 +167,83 @@ On remarque notamment que les paramètres optimaux trouvés sont les suivants : 
 En particulier, grâce à ce jeu de paramètres, on obtient la solution suivante:
 $$['1', '17', '20', '10', '18', '19', '11', '6', '16', '2', '12', '13', '7', '14', '8', '3', '5', '9', '21', '4', '15']$$
 avec un score de 380, le meilleur score de la solution étant de 378. On remarque que tout se joue à une intervertion de la 3e et de la 4e ville.
+
+\subsection{Optimisation des paramètres pour la 2e instance}
+Pour rappel, la 2e instance contient 61 villes.
+A la différence du travail de la 1e instance, une amélioration a été implémentée : désormais l'algorithme par search-grid va aussi s'intéresser à des pénalités linéaires (et non binaires comme cela était le cas jusqu'à présent).
+La pénalité linéaire est calculée de la façon suivante:
+$$p = \alpha \times \frac{temps_{actuel} - fermeture_{ville}}{max(fermeture_{ville}, \forall ville)}$$
+
+Après avoir lancé le programme d'optimisation des paramètres sur la 2e instance, les évolutions suivantes ont été obtenues :
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=1.1\textwidth]{photo/Figure_1.png}
+    \caption{Optimisation des paramètres sur la 2e instance}
+    \label{fig:parametres_2}
+\end{figure}
+
+On peut observer en particulier deux éléments intéressants :
+\begin{itemize}
+    \item au niveau du nombre de villes validées en moyenne, on observe que l'algorithme converge vers des solutions "plus" valides quand la pénalité est linéaire que binaire.
+    \item Mais surtout, le point beaucoup plus intéressant se situe au niveau du score normalisé : on observe en effet une disjonction claire en fonction du choix d'une pénalité binaire ou linéaire.
+    C'est ainsi que l'on constate que les score des jeux avec pénalités binaires diminuent de moitié au maximum; tandis que les scores des jeux avec pénalités linéaires diminuent à minima d'un facteur 10.
+\end{itemize}
+Cette observation démontre donc l'avantage irréfutable de la pénalité linéaire. Néanmoins, cet avantage aurait pu être intuité dès le départ : en effet, avec une pénalité linéaire on laisse plus de liberté au modèle pour faire des choix "localement" meilleurs.
+
+Une autre observation peut aussi être faite : au cours de l'optimisation des paramètres nous avons du augmenter sensiblement le nombre d'itérations du modèle. En effet, nous avons du multiplier par 5 le nombre d'itérations (passant de 10000 à 50000) afin de permettre au modèle de converger.
+La dernière partie de ce rapport s'attardera justement à étudier l'influence de ce paramètre sur les performances du modèles.
+
+Pour conclure sur ce jeu de données, l'algorithme semble être optimisé pour le jeu de paramètres suivants:
+\begin{itemize}
+    \item $T_{init} = 10000$
+    \item $T_{fin} = 1$
+    \item $\alpha = 5000$
+    \item transformee\_pick\_2
+\end{itemize}
+
+In fine, on obtient par exemple un modèle validant 57 villes sur 61 (soit 93\%) mais qui offre une caractéristique intéressante. Ci-dessous, sont indiqués les 10 premiers éléments de la solution et du retour du modèle.
+\begin{itemize}
+    \item solution : 1 50 27 40 9  17 8  35 47 53
+    \item modèle   : 1 50 27 9  17 40 53 47 35 3
+\end{itemize}
+On constate donc avec surprise que le modèle renvoie une sortie relativement semblable à la solution connue!
+Cette propriété surprenante pourrait être mise à profit en poursuivant l'entrainement à la fin par une nouvelle fonction de transformée qui s'intéresserait à toutes les permutations possibles de sous-listes de tailles finies.
+
+
+\subsection{Optimisation des paramètres pour la 3e instance}
+Pour rappel, la 3e instance est composée de 201 villes.
+Ici, le travail réalisé est sensiblement le même que pour la 2e instance. Néanmoins, on constate une augmentation plus que significative du temps de calcul nécessaire : l'optimisation des paramètres pour la 1e instance était réalisée en 2h environ; 
+pour la 2e instance, il fallait compter 4-5h; tandis que pour la 3e instance, l'optimisation n'avait toujours pas convergé au bout de 9h de travail \footnote{mais les avancées devenaient de plus en plus négligeables.}
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=1.1\textwidth]{photo/Figure_2.png}
+    \caption{Optimisation des paramètres sur la 3e instance}
+    \label{fig:parametres_3}
+\end{figure}
+
+On peut à nouveau remarquer une discrimination importante entre la pénalité linéaire et la pénalité binaire. Cependant, on observe désormais cette discrimination aussi sur la forme générale de l'évolution du nombre de villes validées:
+les modèles à pénalité binaire convergent très rapidement vers une trentaine de villes validées, tandis que le score avec pénalités linéaires continuait toujours de s'améliorer à la fin de l'entrainement.
+Cela confirme donc bien l'intérêt d'augmenter sensiblement le nombre d'itérations.
+
+
+On observe néanmoins que le jeu de paramètres qui semble le plus "prometteur" est le suivant:
+\begin{itemize}
+    \item $T_{init} = 10000$
+    \item $T_{fin} = 0.001$
+    \item $\alpha = 10$
+    \item transformee\_pick\_2
+\end{itemize}
+
+Les résultats restent cependant assez surprenants au vu de ce qui avait été précédemment obtenus.
+
+
+\subsection{Etude de l'influence du nombre d'itérations sur les performances du modèle}
+A FAIRE
+
+\subsection{Instance concours : 4e instance}
+A FAIRE
+
 
 \section{Conclusion et ouverture}
 
