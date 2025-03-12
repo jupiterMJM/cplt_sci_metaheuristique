@@ -50,7 +50,7 @@ def extract_mean_and_IC(path_to_folder, Z_alpha_sur_2 = 1.96):
 
 
 # on liste les fichiers présents dans path_to_result
-path_to_result = "resultats/grid_on_inst2"
+path_to_result = "resultats/grid_on_inst3_iter_increased"
 folders = os.listdir(path_to_result)
 
 # affichage des courbes
