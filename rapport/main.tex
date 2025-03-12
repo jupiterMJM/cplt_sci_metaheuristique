@@ -229,9 +229,9 @@ Cela confirme donc bien l'intérêt d'augmenter sensiblement le nombre d'itérat
 
 On observe néanmoins que le jeu de paramètres qui semble le plus "prometteur" est le suivant:
 \begin{itemize}
-    \item $T_{init} = 10000$
+    \item $T_{init} = 10$
     \item $T_{fin} = 0.001$
-    \item $\alpha = 10$
+    \item $\alpha = 10000$
     \item transformee\_pick\_2
 \end{itemize}
 
@@ -239,14 +239,39 @@ Les résultats restent cependant assez surprenants au vu de ce qui avait été p
 
 
 \subsection{Etude de l'influence du nombre d'itérations sur les performances du modèle}
-A FAIRE
+% en gros montrer que augmenter le nombre d'itérations améliore les résultats mais dégrade le temps de calcul
+On a pu le voir jusqu'à présent, le nombre d'itérations est un paramètre critique de l'algorithme de recuit simulé. En effet, plus on itère, plus on a de chance de trouver une solution optimale. Néanmoins, il est important de noter que le temps de calcul augmente de manière linéaire (par construction) avec le nombre d'itérations.
+Ainsi, si le nombre d'itération n'est pas adapté à la taille du problème (au nombre de villes par exemple), quelque soit le jeu de paramètres, le modèle ne pourra pas converger. L'algorithme de search-grid est donc par la même mis en défaut.
+Pour étudier plus "scientifiquement" cette dépendance, nous avons fait varier le nombre d'itération pour un jeu de paramètres fixe et avons observé l'évolution des performances du modèle.
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{photo/evol_iter.PNG}
+    \caption{Evolution des performances en fonction du nombre d'itérations (l'axe des abscisses est à l'échelle 1:10)}
+\end{figure}
+
+On observe ainsi que le nombre de villes validées augmente sensiblement avec le nombre d'itérations.
+Néanmoins, on atteint rapidement les limites acceptables en terme de temps d'éxecution. En effet, pour 200000 itérations, le programme met environ 2 minutes à s'éxecuter, ce qui empêche déjà de faire des moyennes sur plusieurs exécutions.
+Enfin, on peut intuiter que, en règle générale, au plus il y a d'itérations au plus les résultats seront bons.
+
+
+On peut encore une fois remarquer que les retours du modèle sont encore une fois fortement semblable à la solution connue du problème, comme on le constate sur les 10 premières villes :
+\begin{itemize}
+    \item solution : 1 2 26 7 9 10 77  13 101 5
+    \item modèle   : 1 2 26 7 9 77 101 13 89  12
+\end{itemize}
 
 \subsection{Instance concours : 4e instance}
 A FAIRE
 
 
 \section{Conclusion et ouverture}
+Ce projet nous a permis de nous familiariser avec les métaheuristiques, et plus particulièrement avec l'algorithme de recuit simulé, en l'appliquant à un problème concret : le problème du voyageur du commerce avec fenêtres de temps. Nous avons pu constater l'importance du choix des fonctions de transformation de l'état courant et des paramètres critiques de l'algorithme pour obtenir des résultats satisfaisants.
 
+Les résultats obtenus montrent que l'algorithme de recuit simulé est capable de trouver des solutions approchées de bonne qualité pour des instances de taille modérée. Cependant, pour des instances de grande taille, le temps de calcul nécessaire pour obtenir des solutions valides devient prohibitif. L'optimisation des paramètres par search-grid a permis d'améliorer les performances de l'algorithme, mais au prix d'un temps de calcul encore plus important.
+
+Une piste d'amélioration pourrait être d'explorer d'autres métaheuristiques, comme les algorithmes génétiques ou les colonies de fourmis, pour comparer leurs performances avec celles du recuit simulé. De plus, il serait intéressant d'étudier l'influence de la parallélisation des calculs sur les performances de l'algorithme, afin de réduire le temps de calcul nécessaire pour les instances de grande taille.
+
+En conclusion, ce projet a été une expérience enrichissante qui nous a permis de mieux comprendre les enjeux et les défis liés à l'utilisation des métaheuristiques pour résoudre des problèmes d'optimisation combinatoire complexes.
 
 
 \end{document}
