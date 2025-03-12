@@ -25,12 +25,13 @@ print("[INFO] Modules importés")
 # configuration de la simulation
 # configuration
 T_final = 1
-T_init = 1000
-nb_iter = 10000
-num_instance = "inst1"
-transformee = transformee_pick_among_non_valid
+T_init = 10000
+nb_iter = 200000
+num_instance = "inst_concours"
+transformee = transformee_pick_the_furthest
 path_to_instance = f"data/{num_instance}"
 alpha = 5000
+calcul_penalite = "lineaire"
 
 def f(temp):
     # if iter % 10000 == 0:
@@ -39,7 +40,7 @@ def f(temp):
 
 # # on met la date et l'heure de la simu
 # nom_folder = f"{num_instance}_{transformee.__name__}_{T_init}_{lbd}_{alpha}"
-nb_simu = 30
+nb_simu = 1
 ###################################################################
 
 
@@ -70,7 +71,7 @@ else:
 for i in range(nb_simu):
     print(f"itération {i+1}")
     # on lance la simulation
-    historique = recuit_simule(T_init, alpha, nom_folder, transformee, f, nb_iter, instance, graphe_matrix)
+    historique = recuit_simule(T_init, alpha, nom_folder, transformee, f, nb_iter, instance, graphe_matrix, calcul_penalite=calcul_penalite, keep_one_on=10)
     print("sauvegarde des données")
     historique.save(f"resultats/{nom_folder}/simu_{i}.json")
     print("fin de l'itération")

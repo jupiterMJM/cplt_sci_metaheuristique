@@ -53,14 +53,13 @@ class Historique:
 
     def append(self, temperature, proba, score, score_without_punition, valide_kept, time_axis, score_kept):
         self.i += 1
-        if self.i % 5 == 0:
-            # self.temperature.append(temperature)
-            self.proba.append(proba)
-            # self.score.append(score)
-            self.score_without_punition.append(score_without_punition)
-            self.modele_valide.append(valide_kept)
-            self.time_axis.append(time_axis)
-            self.score_kept.append(score_kept)
+        # self.temperature.append(temperature)
+        self.proba.append(proba)
+        # self.score.append(score)
+        self.score_without_punition.append(score_without_punition)
+        self.modele_valide.append(valide_kept)
+        self.time_axis.append(time_axis)
+        self.score_kept.append(score_kept)
 
     def keep_model(self, model):
         self.model = model

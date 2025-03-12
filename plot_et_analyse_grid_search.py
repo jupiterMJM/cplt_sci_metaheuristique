@@ -35,11 +35,11 @@ def extract_mean_and_IC(path_to_folder, Z_alpha_sur_2 = 1.96):
             del temp["model"]
             temp = pd.DataFrame(temp)
             all_data.append(temp)
-            if max(temp["modele_valide"]) >= 35:
-                print(file)
+            if max(temp["modele_valide"]) >= 55:
+                print(file, max(temp["modele_valide"]))
                 print(model)
                 print(folder)
-                instance = load_instance("data/inst2")
+                instance = load_instance("data/inst3")
                 print(compute_score(instance, model))
 
     moyenne = sum(all_data) / len(all_data)
@@ -50,7 +50,7 @@ def extract_mean_and_IC(path_to_folder, Z_alpha_sur_2 = 1.96):
 
 
 # on liste les fichiers présents dans path_to_result
-path_to_result = "resultats/grid_on_inst3_iter_increased"
+path_to_result = r"\\fysfile01\atomhome$\ma5706ba\Personal_Storage\cplt_sci\cplt_sci_metaheuristique\resultats\grid_on_inst2_iter_increased"
 folders = os.listdir(path_to_result)
 
 # affichage des courbes

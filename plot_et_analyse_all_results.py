@@ -29,6 +29,7 @@ def extract_mean_and_IC(path_to_folder, Z_alpha_sur_2 = 1.96):
     for file in files:
         with open(f"{path_to_folder}/{file}", "r") as f:
             temp = json.load(f)
+            print(temp.pop("model"))
             temp = pd.DataFrame(temp)
             all_data.append(temp)
 
@@ -40,25 +41,26 @@ def extract_mean_and_IC(path_to_folder, Z_alpha_sur_2 = 1.96):
 
 
 # on liste les fichiers présents dans path_to_result
-path_to_result = "resultats"
+path_to_result = "resultats_new/resultats_concours"
 files = os.listdir(path_to_result)
 
 # affichage des courbes
 fig = plt.figure()
 fig.suptitle("Analyse des résultats de la simulation")
 
-axs = fig.subplot_mosaic("""
-                          1112
-                          1113
-                          1114
-                          """)
+# axs = fig.subplot_mosaic("""
+#                           1112
+#                           1113
+#                           1114
+#                           """)
+axs = fig.subplot_mosaic("12")
 for file in files:
     mean, ic, all_data = extract_mean_and_IC(path_to_result + "/" + file)
 
 
 
     # courbe de la moyenne du score avec l'écart type
-    axs['1'].plot(mean["score_kept"], label=file.split("_")[4])
+    axs['1'].plot(mean["score_kept"], label=file)
     # for data in all_data:
     #     axs[0, 0].plot(data["score_kept"])
     axs['1'].fill_between(mean.index, mean["score_kept"] - ic["score_kept"], mean["score_kept"] + ic["score_kept"], alpha=0.2)
@@ -74,9 +76,9 @@ for file in files:
     #     axs[0, 1].plot(data["modele_valide"])
 
     # courbe de la moyenne du "proba" avec l'écart type
-    axs['3'].plot(mean["proba"])
-    axs['3'].fill_between(mean.index, mean["proba"] - ic["proba"], mean["proba"] + ic["proba"], alpha=0.2)
-    axs['3'].set_title("Proba")
+    # axs['3'].plot(mean["proba"])
+    # axs['3'].fill_between(mean.index, mean["proba"] - ic["proba"], mean["proba"] + ic["proba"], alpha=0.2)
+    # axs['3'].set_title("Proba")
 
 # on show
 plt.show()
