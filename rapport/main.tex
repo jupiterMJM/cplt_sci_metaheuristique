@@ -8,18 +8,60 @@
 \usepackage{amssymb}
 \usepackage{hyperref}
 \usepackage{geometry}
+\usepackage{multicol}
 \geometry{a4paper, margin=1in}
 
-\title{Parcours CS+R \\ Info2 : métaheuristique \\ Rapport de fin de Projet}
-\author{Maxence Barré}
-\date{\today}
+
+\title{\textbf{Parcours CS+R \\ Info2 : métaheuristique \\ Rapport de fin de Projet}}
+\author{Maxence BARR\'E - Clémence FINOTTO}
+\date{Mars 2025}
 
 \begin{document}
 
-\maketitle
+\begin{titlepage}
+\newgeometry{left=1cm,right=1cm,top=1cm,bottom=2cm}
 
+
+\begin{center}
+\begin{multicols}{2}
+    \includegraphics[height=2.5cm]{photo/logo1.png} 
+
+    \columnbreak
+    
+    \includegraphics[height=2.5cm]{photo/logo2.png} 
+\end{multicols}    
+    
+\end{center}
+\vspace{4cm}
+
+\begin{center}
+    \rule{15cm}{0.5pt}
+    
+    
+        \vspace*{1cm} % Espace vertical
+
+        \Huge \textbf{Parcours CS+R \\ Info2 : métaheuristique \\ Rapport de fin de Projet}
+
+        \vspace{1cm} % Espace vertical
+
+        \Large \textbf{Maxence BARR\'E - Clémence FINOTTO}
+
+        \Large Mars 2025
+  
+    \rule{15cm}{0.5pt}
+
+    
+    %\vspace{2cm}
+    %\includegraphics[width=14cm]{a_hydrogène.jpg}
+    
+\end{center}
+
+\restoregeometry
+\end{titlepage}
+
+\newpage
 \tableofcontents
-
+\newpage
 
 \section{Introduction et présentation du problème}
 \subsection{Contexte}
@@ -29,6 +71,7 @@ Pour ces problèmes, on utilise en autres les métaheuristiques, qui sont des al
 Ces algorithmes sont souvent inspirés de phénomènes naturels, comme le recuit simulé, qui est inspiré du refroidissement d'un métal, ou les algorithmes génétiques, qui sont inspirés de la théorie de l'évolution.
 
 L'objectif de ce complément scientifique de CS+R a justement été de nous familiariser avec ces algorithmes en travaillant sur un projet concret : la "résolution" du voyageur du commerce avec fenètres de temps.
+Le lecteur pourra trouver les codes développés pour ce projet sur le lien suivant : \url{https://github.com/jupiterMJM/cplt_sci_metaheuristique.git}
 
 \subsection{Problème du voyageur du commerce avec fenêtres de temps}
 Le problème du voyageur du commerce est un problème classique en optimisation combinatoire. Il s'agit de trouver le plus court chemin passant par un ensemble de villes, en visitant chaque ville une seule fois et en revenant à la ville de départ. 
@@ -89,7 +132,8 @@ Après réfléxion, les fonctions de transformée suivantes ont été implément
     \item transformee\_pick\_the\_furthest : choisit la ville la plus éloignée de la ville précédente et la permute avec une autre ville
 \end{itemize}
 
-Par intuition, on pourrait penser que les 2 dernières fonctions de transformées sont les plus efficaces, car elles permettent de "casser" plus facilement les configurations locales et d'explorer de nouvelles solutions. De plus, ce sont celles qui ont le plus de chance de valider les contraintes temporelles pour chacune des villes.
+\vspace{0.5cm}
+Intuitivement, on pourrait penser que les 2 dernières fonctions de transformées sont les plus efficaces, car elles permettent de "casser" plus facilement les configurations locales et d'explorer de nouvelles solutions. De plus, ce sont celles qui ont le plus de chance de valider les contraintes temporelles pour chacune des villes.
 
 Une fois ces fonctions de transformées implémentées, il a été décidé de déterminer les paramètres critiques de l'algorithme de recuit simulé pour notre problème:
 \begin{itemize}
@@ -261,7 +305,20 @@ On peut encore une fois remarquer que les retours du modèle sont encore une foi
 \end{itemize}
 
 \subsection{Instance concours : 4e instance}
-A FAIRE
+Pour rappel, la 4e instance (concours) est composée de 101 villes.
+Afin d'obtenir de bons résultats rapidement, il a été décidé de comparer les jeux de paramètres obtenus lors de l'optimisation des instances précédentes tout en fixant 
+le nombre d'itérations à 200000. Les résultats obtenus sont les suivants:
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{photo/instance_concours.png}
+    \caption{Résultats sur la 4e instance}
+    \label{fig:parametres_4}
+\end{figure}
+
+Chaque courbe est labelisé par param{i} où i correspond à l'indice du jeu de paramètres de l'instance i.
+On peut observer que le jeu de paramètres de l'instance 2 est le plus performant, avec une performance de 64 villes validées.
+Ainsi, bien que les conditions de validité ne soient pas vérifiées (il reste des villes non validées), les exécutions précédentes nous amènent à penser que le modèle est relativement proche d'une solution optimale.
+Pour l'atteindre, il faudrait par exemple créer une nouvelle fonction de transformée qui s'intéresserait à toutes les permutations possibles de sous-listes de tailles finies.
 
 
 \section{Conclusion et ouverture}
